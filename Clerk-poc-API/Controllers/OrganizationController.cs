@@ -1,5 +1,6 @@
 ﻿using Clerk.BackendAPI.Models.Operations;
 using Clerk_poc_API.Interfaces;
+using Clerk_poc_API.Models;
 using Clerk_poc_API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,6 +29,23 @@ namespace Clerk_poc_API.Controllers
         {
             var organizations = await _organizationService.ListOrganizationsAsync();
             return Ok(organizations);
+        }
+
+        [HttpGet("{organizationId}")]
+        public async Task<IActionResult> GetOrganization(string organizationId)
+        {
+            var organization = await _organizationService.GetOrganizationAsync(organizationId);
+            return Ok(organization);
+        }
+
+        [HttpPost("save")]
+        public async Task<IActionResult> SaveOrganization([FromBody] OrganizationDto organization)
+        {
+            if (organization == null)
+                return BadRequest("Organization is null");
+
+            var result = await _organizationService.SaveOrganizationAsync(organization);
+            return Ok(result);
         }
     }
 }

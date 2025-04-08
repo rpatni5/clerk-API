@@ -1,8 +1,9 @@
 ﻿namespace Clerk_poc_API.Models
 {
-    public class stripeModel
+    public class OrganizationDto
     {
-        public string OrgName { get; set; }
-        public string AdminEmail { get; set; }
+        public string? Id { get; set; }
+        public string? Name { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

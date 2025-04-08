@@ -1,11 +1,16 @@
+using Clerk_poc_API.Entities;
 using Clerk_poc_API.Interfaces;
 using Clerk_poc_API.Services;
+using Microsoft.EntityFrameworkCore;
+using System;
 using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -18,6 +23,9 @@ builder.Services.AddCors(options =>
                           .AllowAnyHeader()
                           .AllowAnyMethod());
 });
+builder.Services.AddDbContext<ClerkPocContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
