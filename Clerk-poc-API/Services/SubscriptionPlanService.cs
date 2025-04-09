@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Clerk_poc_API.Services
 {
-    public class SubscriptionService :ISubscriptionService
+    public class SubscriptionPlanService : ISubscriptionPlanService
     {
         private readonly ClerkPocContext _context;
         private readonly IOrganizationService _organizationService;
-        public SubscriptionService(ClerkPocContext context, IOrganizationService organizationService)
+        public SubscriptionPlanService(ClerkPocContext context, IOrganizationService organizationService)
         {
             _context = context;
             _organizationService = organizationService;

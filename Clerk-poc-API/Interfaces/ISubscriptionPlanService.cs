@@ -3,7 +3,7 @@ using Clerk_poc_API.Models;
 
 namespace Clerk_poc_API.Interfaces
 {
-    public interface ISubscriptionService
+    public interface ISubscriptionPlanService
     {
         Task<List<SubscriptionPlanDto>> GetAllPlansAsync(string tenantId);
     }

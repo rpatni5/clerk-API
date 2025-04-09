@@ -18,9 +18,9 @@ namespace Clerk_poc_API.Controllers
         }
 
         [HttpPost("assign-free-plan")]
-        public async Task<IActionResult> AssignFreePlan([FromBody] stripeModel dto)
+        public async Task<IActionResult> AssignFreePlan([FromBody] StripeCustomerDto dto)
         {
-            var subscription = await _stripeService.CreateFreeSubscriptionAsync(dto.OrgName, dto.AdminEmail);
+            var subscription = await _stripeService.CreateFreeSubscriptionAsync(dto);
             return Ok(new
             {
                 subscription.Id,

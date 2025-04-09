@@ -1,4 +1,5 @@
-﻿using Stripe;
+﻿using Clerk_poc_API.Models;
+using Stripe;
 
 namespace Clerk_poc_API.Services
 {
@@ -8,17 +9,23 @@ namespace Clerk_poc_API.Services
 
         public StripeService(IConfiguration config)
         {
-            StripeConfiguration.ApiKey = config["Stripe:ApiKey"];
-            _freePlanPriceId = config["Stripe:FreePlanPriceId"];
+            StripeConfiguration.ApiKey = config["Stripe:SecretKey"];
+            _freePlanPriceId = "price_1RBDfALWKuD5pPy8LaNRHlOz";
         }
 
-        public async Task<Subscription> CreateFreeSubscriptionAsync(string organizationName, string email)
+        public async Task<Subscription> CreateFreeSubscriptionAsync(StripeCustomerDto model)
         {
             // 1. Create Customer
             var customerOptions = new CustomerCreateOptions
             {
-                Name = organizationName,
-                Email = email
+                Name = model.UserName,
+                Email = model.Email,
+                Metadata = new Dictionary<string, string>
+                {
+                    { "UserId", model.UserId },
+                    { "OrganizationId", model.OrganizationId },
+                    { "OrganizationName", model.OrganizationName }
+                }
             };
             var priceService = new PriceService();
             var customerService = new CustomerService();
@@ -35,7 +42,7 @@ namespace Clerk_poc_API.Services
                     Price = _freePlanPriceId
                 }
             },
-                TrialPeriodDays = 0
+                TrialPeriodDays = 14
             };
 
             var subscriptionService = new SubscriptionService();

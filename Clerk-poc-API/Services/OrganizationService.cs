@@ -78,7 +78,7 @@ namespace Clerk_poc_API.Services
             var entity = new Clerk_poc_API.Entities.Organization
             {
                 Id = org.Id,
-                OrganizationName = org.Name,
+                OrganizationName = org.OrganizationName,
                 CreatedAt = org.CreatedAt,
             };
             _context.Organization.Add(entity);
