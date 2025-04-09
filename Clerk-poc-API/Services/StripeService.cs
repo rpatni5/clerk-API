@@ -14,7 +14,7 @@ namespace Clerk_poc_API.Services
             _freePlanPriceId = "price_1RBDfALWKuD5pPy8LaNRHlOz";
         }
 
-        public async Task<Subscription> CreateFreeSubscriptionAsync(StripeCustomerDto model)
+        public async Task<CustomerSubscriptionDto> CreateCustomerWithFreeSubs(StripeCustomerDto model)
         {
             // 1. Create Customer
             var customerOptions = new CustomerCreateOptions
@@ -48,7 +48,14 @@ namespace Clerk_poc_API.Services
             };
 
             var subscriptionService = new SubscriptionService();
-            return await subscriptionService.CreateAsync(subscriptionOptions);
+            var subscription = await subscriptionService.CreateAsync(subscriptionOptions);
+
+            // 3. Return both Customer and Subscription
+            return new CustomerSubscriptionDto
+            {
+                Customer = customer,
+                Subscription = subscription
+            };
         }
 
         public async Task<List<Product>> GetAllStripeProductsAsync()
@@ -92,6 +99,22 @@ namespace Clerk_poc_API.Services
             return result;
         }
 
+        public async Task<Subscription?> GetActiveSubscriptionAsync(string customerId)
+        {
+            var subscriptionService = new SubscriptionService();
+
+            var options = new SubscriptionListOptions
+            {
+                Customer = customerId,
+                Status = "active", // Optional, returns only active subscriptions
+                Limit = 1 // Only need the latest one usually
+            };
+
+            var subscriptions = await subscriptionService.ListAsync(options);
+
+            // Return the first active subscription, if any
+            return subscriptions.FirstOrDefault();
+        }
 
 
 

@@ -6,11 +6,11 @@ namespace Clerk_poc_API.Interfaces
 {
     public interface IStripeService
     {
-        Task<Subscription> CreateFreeSubscriptionAsync(StripeCustomerDto model);
+        Task<CustomerSubscriptionDto> CreateCustomerWithFreeSubs(StripeCustomerDto model);
 
         Task<List<Product>> GetAllStripeProductsAsync();
         Task<List<(Product product, List<Price> prices)>> GetAllProductsWithPricesAsync();
-
+        Task<Subscription?> GetActiveSubscriptionAsync(string customerId);
 
 
     }

@@ -17,15 +17,11 @@ namespace Clerk_poc_API.Controllers
             _stripeService = stripeService;
         }
 
-        [HttpPost("assign-free-plan")]
-        public async Task<IActionResult> AssignFreePlan([FromBody] StripeCustomerDto dto)
+        [HttpPost("create-customer")]
+        public async Task<IActionResult> CreateFreeTrialCustomer([FromBody] StripeCustomerDto dto)
         {
-            var subscription = await _stripeService.CreateFreeSubscriptionAsync(dto);
-            return Ok(new
-            {
-                subscription.Id,
-                subscription.Status
-            });
+            var subscription = await _stripeService.CreateCustomerWithFreeSubs(dto);
+            return Ok(subscription);
         }
 
 
@@ -50,5 +46,16 @@ namespace Clerk_poc_API.Controllers
             return Ok(result);
         }
 
+
+        [HttpGet("active-subscription/{customerId}")]
+        public async Task<IActionResult> GetActiveSubscription(string customerId)
+        {
+            var subscription = await _stripeService.GetActiveSubscriptionAsync(customerId);
+
+            if (subscription == null)
+                return NotFound("No active subscription found for this customer.");
+
+            return Ok(subscription);
+        }
     }
 }
