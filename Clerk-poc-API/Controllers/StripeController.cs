@@ -10,9 +10,9 @@ namespace Clerk_poc_API.Controllers
     [ApiController]
     public class StripeController : ControllerBase
     {
-        private readonly StripeService _stripeService;
+        private readonly IStripeService _stripeService;
 
-        public StripeController(StripeService stripeService)
+        public StripeController(IStripeService stripeService)
         {
             _stripeService = stripeService;
         }
@@ -27,4 +27,28 @@ namespace Clerk_poc_API.Controllers
                 subscription.Status
             });
         }
-    } }
+
+
+        [HttpGet("products")]
+        public async Task<IActionResult> GetAllProducts()
+        {
+            var products = await _stripeService.GetAllStripeProductsAsync();
+            return Ok(products);
+        }
+
+        [HttpGet("products-with-prices")]
+        public async Task<IActionResult> GetProductsWithPrices()
+        {
+            var data = await _stripeService.GetAllProductsWithPricesAsync();
+
+            var result = data.Select(p => new
+            {
+                Product = p.product,
+                Prices = p.prices
+            });
+
+            return Ok(result);
+        }
+
+    }
+}
