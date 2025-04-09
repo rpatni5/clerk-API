@@ -43,7 +43,8 @@ namespace Clerk_poc_API.Services
                     Price = _freePlanPriceId
                 }
             },
-                TrialPeriodDays = 14
+                TrialPeriodDays = 14,
+                CancelAt = DateTime.UtcNow.AddDays(14),
             };
 
             var subscriptionService = new SubscriptionService();
