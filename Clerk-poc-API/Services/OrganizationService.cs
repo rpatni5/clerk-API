@@ -75,6 +75,11 @@ namespace Clerk_poc_API.Services
         }
         public async Task<bool> SaveOrganizationAsync(OrganizationDto org)
         {
+            var existingOrg = await _context.Organization.FindAsync(org.Id);
+            if (existingOrg != null)
+            {
+                throw new InvalidOperationException("Organization already exists.");
+            }
             var entity = new Clerk_poc_API.Entities.Organization
             {
                 Id = org.Id,
