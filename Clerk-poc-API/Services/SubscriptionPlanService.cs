@@ -82,6 +82,8 @@ namespace Clerk_poc_API.Services
                    activeSubscription.ProductId != null &&
                    activeSubscription.ExpiryDate.HasValue &&
                    activeSubscription.ExpiryDate.Value.Date > DateTime.UtcNow.Date;
+
+            // bring data from stripe too to chek the subscription of invoice too 
         }
 
     }
