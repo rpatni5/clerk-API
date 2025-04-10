@@ -9,5 +9,6 @@ namespace Clerk_poc_API.Entities
 
         public DbSet<SubscriptionPlans> SubscriptionPlans { get; set; }
         public DbSet<Organization> Organization { get; set; }
+        public DbSet<SubscriptionHistory> SubscriptionHistory { get; set; }
     }
 }
