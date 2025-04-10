@@ -31,7 +31,7 @@ namespace Clerk_poc_API.Controllers
             var subscriptionService = new SubscriptionService();
             var subscription = await subscriptionService.GetAsync(session.SubscriptionId);
 
-            var organizationId = customer.Metadata.TryGetValue("OrganizationId", out var orgId) ? orgId : null;
+            var organizationId = session.Metadata.TryGetValue("OrganizationId", out var orgId) ? orgId : null;
 
             if (organizationId != null)
             {
