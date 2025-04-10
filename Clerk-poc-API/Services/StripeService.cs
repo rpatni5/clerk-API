@@ -62,16 +62,7 @@ namespace Clerk_poc_API.Services
 
             var subscriptionService = new SubscriptionService();
             var subscription = await subscriptionService.CreateAsync(subscriptionOptions);
-            //var savesubscription = await _subscriptionPlanService.AddSubscriptionPlanAsync(new SubscriptionPlans
-            //{
-            //    IsActivated = subscription.Status == "active",
-            //    SubscriptionId = subscription.Id,
-            //    OrganizationId = customer.Metadata.TryGetValue("organizationId", out var orgId) ? orgId : null,
-            //    DefaultUsers = 1, 
-            //    ExtraUsers = 0,
-            //    CreatedDate = DateTime.UtcNow,
-            //    ExpiryDate = subscription.Items.Data[0].CurrentPeriodEnd,
-            //});
+          
             // 3. Return both Customer and Subscription
             return new CustomerSubscriptionDto
             {

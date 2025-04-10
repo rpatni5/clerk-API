@@ -11,5 +11,6 @@
         public string? priceId { get; set; }
         public string ? ProductId { get; set; }
         public string?  ActivePlanId{get; set; }
+        public DateTime? ExpiryDate { get; set; }
     }
 }
