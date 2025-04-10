@@ -3,6 +3,7 @@ using Clerk_poc_API.Interfaces;
 using Clerk_poc_API.Models;
 using Clerk_poc_API.Services;
 using Microsoft.AspNetCore.Mvc;
+using Stripe;
 
 namespace Clerk_poc_API.Controllers
 {

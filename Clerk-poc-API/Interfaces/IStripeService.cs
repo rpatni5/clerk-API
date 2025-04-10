@@ -14,5 +14,6 @@ namespace Clerk_poc_API.Interfaces
         Task<Subscription?> GetActiveSubscriptionAsync(string customerId);
 
         Task<Session> CreateCheckoutSessionAsync(CheckoutRequestDto model);
+
     }
 }

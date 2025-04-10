@@ -131,6 +131,26 @@ namespace Clerk_poc_API.Services
 
         public async Task<Session> CreateCheckoutSessionAsync(CheckoutRequestDto model)
         {
+            var subscriptionService = new Stripe.SubscriptionService();
+
+            // 1. Cancel any existing active subscriptions for the customer
+            var existingSubscriptions = await subscriptionService.ListAsync(new SubscriptionListOptions
+            {
+                Customer = model.StripeCustomerId,
+                Status = "active",
+                Limit = 1
+            });
+
+            var currentSubscription = existingSubscriptions.FirstOrDefault();
+            if (currentSubscription != null)
+            {
+                // Cancel immediately without prorating (you can tweak this behavior)
+                await subscriptionService.CancelAsync(currentSubscription.Id, new SubscriptionCancelOptions
+                {
+                    InvoiceNow = true,
+                    Prorate = false
+                });
+            }
 
             var options = new SessionCreateOptions
             {
@@ -155,6 +175,5 @@ namespace Clerk_poc_API.Services
             var session = await service.CreateAsync(options);
             return session;
         }
-
     }
 }
