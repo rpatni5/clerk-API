@@ -34,6 +34,17 @@ namespace Clerk_poc_API.Controllers
             return Ok(result);
         }
 
-        
+
+        [HttpGet("check-status")]
+        public async Task<IActionResult> CheckSubscriptionStatus([FromQuery] string organizationId)
+        {
+            if (string.IsNullOrEmpty(organizationId))
+            {
+                return BadRequest("OrganizationId is required.");
+            }
+
+            var isActive = await _subscriptionPlanService.IsSubscriptionActiveAsync(organizationId);
+            return Ok(isActive);
+        }
     }
 }

@@ -7,5 +7,6 @@ namespace Clerk_poc_API.Interfaces
     {
         Task<List<SubscriptionPlanDto>> GetAllPlansAsync(string customerId);
         Task<CustomerSubscriptionDto> AddSubscriptionPlanAsync(StripeCustomerDto plan);
+        Task<bool> IsSubscriptionActiveAsync(string organizationId);
     }
 }

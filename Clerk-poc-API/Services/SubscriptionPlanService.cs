@@ -27,6 +27,15 @@ namespace Clerk_poc_API.Services
             {
                 var product = tuple.product;
                 var price = tuple.prices.FirstOrDefault();
+                bool isActive = false;
+
+                if (activeSubscription != null &&
+                    activeSubscription.ProductId == product.Id &&
+                    activeSubscription.ExpiryDate.HasValue &&
+                    activeSubscription.ExpiryDate.Value.Date > DateTime.UtcNow.Date)
+                {
+                    isActive = true;
+                }
 
                 return new SubscriptionPlanDto
                 {
@@ -38,7 +47,7 @@ namespace Clerk_poc_API.Services
                     ProductId = product.Id,
                     ActivePlanId = activeSubscription.ProductId != null ? activeSubscription.ProductId : null,
                     ExpiryDate = activeSubscription.ExpiryDate,
-                    
+                    IsActive = isActive
                 };
             }).ToList();
             return result;
@@ -62,6 +71,17 @@ namespace Clerk_poc_API.Services
             await _context.SubscriptionPlans.AddAsync(savesubscription);
             await _context.SaveChangesAsync();
             return entity;
+        }
+
+        public async Task<bool> IsSubscriptionActiveAsync(string organizationId)
+        {
+            var activeSubscription = await _context.SubscriptionPlans
+                .FirstOrDefaultAsync(x => x.OrganizationId == organizationId);
+
+            return activeSubscription != null &&
+                   activeSubscription.ProductId != null &&
+                   activeSubscription.ExpiryDate.HasValue &&
+                   activeSubscription.ExpiryDate.Value.Date > DateTime.UtcNow.Date;
         }
 
     }
