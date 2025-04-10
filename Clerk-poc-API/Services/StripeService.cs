@@ -1,15 +1,19 @@
-﻿using Clerk_poc_API.Interfaces;
+﻿using Clerk_poc_API.Entities;
+using Clerk_poc_API.Interfaces;
 using Clerk_poc_API.Models;
+using Microsoft.EntityFrameworkCore;
 using Stripe;
+using Stripe.Checkout;
 
 namespace Clerk_poc_API.Services
 {
     public class StripeService : IStripeService
     {
         private readonly string _freePlanPriceId;
-
-        public StripeService(IConfiguration config)
+        private readonly IOrganizationService _organizationService;
+        public StripeService(IConfiguration config, IOrganizationService organizationService)
         {
+            _organizationService = organizationService;
             StripeConfiguration.ApiKey = config["Stripe:SecretKey"];
             _freePlanPriceId = "price_1RBDfALWKuD5pPy8LaNRHlOz";
         }
@@ -31,6 +35,15 @@ namespace Clerk_poc_API.Services
             var priceService = new PriceService();
             var customerService = new CustomerService();
             var customer = await customerService.CreateAsync(customerOptions);
+            var organization = new OrganizationDto
+            {
+                StripeCustomerId = customer.Id,
+                Id = model.OrganizationId,
+                OrganizationName = model.OrganizationName,
+                CreatedAt = model.OrganizationCreatedAt,
+            };
+            var resp = await _organizationService.SaveOrganizationAsync(organization);
+
 
             // 2. Create Subscription (Free plan)
             var subscriptionOptions = new SubscriptionCreateOptions
@@ -44,12 +57,21 @@ namespace Clerk_poc_API.Services
                 }
             },
                 TrialPeriodDays = 14,
-                CancelAt = DateTime.UtcNow.AddDays(14),
+                CancelAt = DateTime.UtcNow.AddMinutes(5),
             };
 
             var subscriptionService = new SubscriptionService();
             var subscription = await subscriptionService.CreateAsync(subscriptionOptions);
-
+            //var savesubscription = await _subscriptionPlanService.AddSubscriptionPlanAsync(new SubscriptionPlans
+            //{
+            //    IsActivated = subscription.Status == "active",
+            //    SubscriptionId = subscription.Id,
+            //    OrganizationId = customer.Metadata.TryGetValue("organizationId", out var orgId) ? orgId : null,
+            //    DefaultUsers = 1, 
+            //    ExtraUsers = 0,
+            //    CreatedDate = DateTime.UtcNow,
+            //    ExpiryDate = subscription.Items.Data[0].CurrentPeriodEnd,
+            //});
             // 3. Return both Customer and Subscription
             return new CustomerSubscriptionDto
             {
@@ -80,7 +102,7 @@ namespace Clerk_poc_API.Services
             var products = await productService.ListAsync(new ProductListOptions
             {
                 Limit = 100,
-                Active = true
+                Active = true,
             });
 
             var result = new List<(Product, List<Price>)>();
@@ -90,7 +112,7 @@ namespace Clerk_poc_API.Services
                 var prices = await priceService.ListAsync(new PriceListOptions
                 {
                     Product = product.Id,
-                    Active = true
+                    Active = true,
                 });
 
                 result.Add((product, prices.ToList()));
@@ -116,7 +138,28 @@ namespace Clerk_poc_API.Services
             return subscriptions.FirstOrDefault();
         }
 
+        public async Task<Session> CreateCheckoutSessionAsync(CheckoutRequestDto model)
+        {
 
+            var options = new SessionCreateOptions
+            {
+                SuccessUrl = "https://localhost:7063/api/PaymentResult/success",
+                CancelUrl = "https://localhost:7063/api/PaymentResult/canceled",
+                LineItems = new List<SessionLineItemOptions>
+            {
+                new SessionLineItemOptions
+                {
+                    Price =model.PriceId,
+                    Quantity = model.Quantity,
+                }
+            },
+                Mode = "subscription",
+                Customer = model.StripeCustomerId,
+            };
+            var service = new SessionService();
+            var session = await service.CreateAsync(options);
+            return session;
+        }
 
     }
 }

@@ -82,14 +82,36 @@ namespace Clerk_poc_API.Services
             }
             var entity = new Clerk_poc_API.Entities.Organization
             {
-                Id = org.Id,
+                Id = !string.IsNullOrEmpty(org.Id) ? org.Id : null,
                 OrganizationName = org.OrganizationName,
                 CreatedAt = org.CreatedAt,
+                StripeCustomerId = org.StripeCustomerId
             };
             _context.Organization.Add(entity);
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<OrganizationDto> UpdateOrganizationAsync(OrganizationDto org)
+        {
+            var existingOrg = await _context.Organization.FindAsync(org.Id);
+            if (existingOrg == null)
+            {
+                throw new InvalidOperationException("Organization not found.");
+            }
+
+            existingOrg.StripeCustomerId= org.StripeCustomerId;
+            _context.Organization.Update(existingOrg);
+            await _context.SaveChangesAsync();
+
+            return new OrganizationDto
+            {
+                Id = existingOrg.Id,
+                OrganizationName = existingOrg.OrganizationName,
+                CreatedAt = existingOrg.CreatedAt,
+            };
+        }
+
     }
 }
 

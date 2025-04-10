@@ -10,5 +10,6 @@ namespace Clerk_poc_API.Interfaces
         Task<ListOrganizationsResponse> ListOrganizationsAsync();
         Task<Organization> GetOrganizationAsync(string organizationId);
         Task<bool> SaveOrganizationAsync(OrganizationDto org);
+        Task<OrganizationDto> UpdateOrganizationAsync(OrganizationDto org);
     }
 }
