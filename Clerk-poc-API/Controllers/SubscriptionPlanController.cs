@@ -33,5 +33,7 @@ namespace Clerk_poc_API.Controllers
             var result = await _subscriptionPlanService.AddSubscriptionPlanAsync(plan);
             return Ok(result);
         }
+
+        
     }
 }

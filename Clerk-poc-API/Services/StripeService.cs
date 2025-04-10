@@ -62,7 +62,7 @@ namespace Clerk_poc_API.Services
 
             var subscriptionService = new SubscriptionService();
             var subscription = await subscriptionService.CreateAsync(subscriptionOptions);
-          
+
             // 3. Return both Customer and Subscription
             return new CustomerSubscriptionDto
             {
@@ -134,7 +134,7 @@ namespace Clerk_poc_API.Services
 
             var options = new SessionCreateOptions
             {
-                SuccessUrl = "https://localhost:7063/api/PaymentResult/success",
+                SuccessUrl = "https://localhost:7063/api/PaymentResult/success?session_id={CHECKOUT_SESSION_ID}",
                 CancelUrl = "https://localhost:7063/api/PaymentResult/canceled",
                 LineItems = new List<SessionLineItemOptions>
             {
@@ -146,6 +146,10 @@ namespace Clerk_poc_API.Services
             },
                 Mode = "subscription",
                 Customer = model.StripeCustomerId,
+                Metadata = new Dictionary<string, string>
+                {
+                   { "OrganizationId", model.OrganizationId }
+                }
             };
             var service = new SessionService();
             var session = await service.CreateAsync(options);
