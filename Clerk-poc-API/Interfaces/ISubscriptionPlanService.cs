@@ -5,6 +5,7 @@ namespace Clerk_poc_API.Interfaces
 {
     public interface ISubscriptionPlanService
     {
-        Task<List<SubscriptionPlanDto>> GetAllPlansAsync(string tenantId);
+        Task<List<SubscriptionPlanDto>> GetAllPlansAsync(string customerId);
+        Task<CustomerSubscriptionDto> AddSubscriptionPlanAsync(StripeCustomerDto plan);
     }
 }

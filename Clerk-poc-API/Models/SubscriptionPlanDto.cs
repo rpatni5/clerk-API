@@ -6,9 +6,10 @@
         public string Subtitle { get; set; }
         public string Features { get; set; }
         public string Price { get; set; }
-        public string ButtonText { get; set; }
-        public string ButtonColor { get; set; }
         public string CssClass { get; set; }
         public long CreatedAt { get; set; }
+        public string? priceId { get; set; }
+        public string ? ProductId { get; set; }
+        public string?  ActivePlanId{get; set; }
     }
 }

@@ -40,7 +40,7 @@ namespace Clerk_poc_API.Controllers
             var result = data.Select(p => new
             {
                 Product = p.product,
-                Prices = p.prices
+                Prices = p.prices,
             });
 
             return Ok(result);
@@ -57,5 +57,20 @@ namespace Clerk_poc_API.Controllers
 
             return Ok(subscription);
         }
+
+        [HttpPost("create-checkout-session")]
+        public async Task<IActionResult> CreateCheckoutSession([FromBody] CheckoutRequestDto model)
+        {
+            try
+            {
+                var session = await _stripeService.CreateCheckoutSessionAsync(model);
+                return Ok(new { sessionId = session.Id, url = session.Url });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
     }
 }
+
