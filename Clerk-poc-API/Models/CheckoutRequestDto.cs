@@ -6,5 +6,7 @@
         public int? Quantity { get; set; }
         public string? Mode { get; set; }
         public string? StripeCustomerId { get; set; }
+        public string? OrganizationId { get; set; }
+        public string? CurrentStripeSubscriptionId { get; set; }
     }
 }
