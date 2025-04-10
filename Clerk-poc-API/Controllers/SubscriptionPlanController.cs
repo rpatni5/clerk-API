@@ -19,9 +19,9 @@ namespace Clerk_poc_API.Controllers
         }
 
         [HttpGet("get")]
-        public async Task<IActionResult> GetPlans([FromQuery] string customerId)
+        public async Task<IActionResult> GetPlans([FromQuery] string organizationId)
         {
-            var plans = await _subscriptionPlanService.GetAllPlansAsync(customerId);
+            var plans = await _subscriptionPlanService.GetAllPlansAsync(organizationId);
             return Ok(plans);
         }
         [HttpPost("create-customer")]

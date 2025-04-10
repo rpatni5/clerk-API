@@ -18,11 +18,11 @@ namespace Clerk_poc_API.Services
             _organizationService = organizationService;
             _stripeService = stripeService;
         }
-        public async Task<List<SubscriptionPlanDto>> GetAllPlansAsync(string customerId)
+        public async Task<List<SubscriptionPlanDto>> GetAllPlansAsync(string organizationId)
         {
             var productPriceList = await _stripeService.GetAllProductsWithPricesAsync();
             var activeSubscription = await _context.SubscriptionPlans
-                .Where(x => x.OrganizationId == customerId).FirstOrDefaultAsync();
+                .Where(x => x.OrganizationId == organizationId).FirstOrDefaultAsync();
             var result = productPriceList.Select(tuple =>
             {
                 var product = tuple.product;
