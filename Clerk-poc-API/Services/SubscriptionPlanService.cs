@@ -108,36 +108,20 @@ namespace Clerk_poc_API.Services
                 return new SubscriptionStatusResult
                 {
                     IsActive = false,
-                    Message = "Stripe customer ID not found."
+                    Message = "customer ID not found."
                 };
             }
             try
             {
                 var subscriptionService = new SubscriptionService();
-                var subscriptions = await subscriptionService.ListAsync(new SubscriptionListOptions
-                {
-                    Customer = activeSubscription.Organization.StripeCustomerId,
-                    Status = "all",
-
-                });
-                var stripeSub = subscriptions.FirstOrDefault(sub =>
-    sub.Items.Any(item => item.Price.ProductId == activeSubscription.ProductId)
-);
-                if (stripeSub == null)
-                {
-                    return new SubscriptionStatusResult
-                    {
-                        IsActive = false,
-                        Message = "No matching subscription found for the given product."
-                    };
-                }
+                var stripeSub = subscriptionService.Get(activeSubscription.SubscriptionId);
 
                 if (stripeSub == null)
                 {
                     return new SubscriptionStatusResult
                     {
                         IsActive = false,
-                        Message = "No subscription found on Stripe."
+                        Message = "No subscription found."
                     };
                 }
 
