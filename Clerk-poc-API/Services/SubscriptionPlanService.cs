@@ -117,10 +117,19 @@ namespace Clerk_poc_API.Services
                 {
                     Customer = activeSubscription.Organization.StripeCustomerId,
                     Status = "all",
-                    Limit = 1
-                });
 
-                var stripeSub = subscriptions.FirstOrDefault();
+                });
+                var stripeSub = subscriptions.FirstOrDefault(sub =>
+    sub.Items.Any(item => item.Price.ProductId == activeSubscription.ProductId)
+);
+                if (stripeSub == null)
+                {
+                    return new SubscriptionStatusResult
+                    {
+                        IsActive = false,
+                        Message = "No matching subscription found for the given product."
+                    };
+                }
 
                 if (stripeSub == null)
                 {
