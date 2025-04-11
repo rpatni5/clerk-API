@@ -56,12 +56,18 @@ namespace Clerk_poc_API.Services
             }
         }
 
-        public async Task<ListOrganizationsResponse> ListOrganizationsAsync()
+        public async Task<List<OrganizationDto>> ListOrganizationsAsync()
         {
-            var request = new ListOrganizationsRequest();
-
-            var response = await _clerkClient.Organizations.ListAsync(request);
-            return response;
+            var response = await _context.Organization.ToListAsync();
+            var result = response.Select(o => new OrganizationDto
+            {
+                OrganizationName = o.OrganizationName,
+                IsExpired=o.IsExpired,
+                Id = o.Id,
+                CreatedAt = o.CreatedAt,
+                StripeCustomerId = o.StripeCustomerId,
+            }).ToList();
+            return result;
         }
 
         public async Task<Organization> GetOrganizationAsync(string organizationId)
