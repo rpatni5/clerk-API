@@ -11,5 +11,6 @@ namespace Clerk_poc_API.Interfaces
         Task<Organization> GetOrganizationAsync(string organizationId);
         Task<bool> SaveOrganizationAsync(OrganizationDto org);
         Task<OrganizationDto> UpdateOrganizationAsync(OrganizationDto org);
+        Task<bool> MarkExpiredAsync(string organizationId);
     }
 }

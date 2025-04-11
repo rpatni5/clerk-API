@@ -7,6 +7,7 @@ using Clerk_poc_API.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -55,7 +56,7 @@ namespace Clerk_poc_API.Services
             }
         }
 
-        public async Task<ListOrganizationsResponse>ListOrganizationsAsync()
+        public async Task<ListOrganizationsResponse> ListOrganizationsAsync()
         {
             var request = new ListOrganizationsRequest();
 
@@ -100,7 +101,7 @@ namespace Clerk_poc_API.Services
                 throw new InvalidOperationException("Organization not found.");
             }
 
-            existingOrg.StripeCustomerId= org.StripeCustomerId;
+            existingOrg.StripeCustomerId = org.StripeCustomerId;
             _context.Organization.Update(existingOrg);
             await _context.SaveChangesAsync();
 
@@ -110,6 +111,31 @@ namespace Clerk_poc_API.Services
                 OrganizationName = existingOrg.OrganizationName,
                 CreatedAt = existingOrg.CreatedAt,
             };
+        }
+        public async Task<bool> MarkExpiredAsync(string organizationId)
+        {
+            var organizaiton = await _context.Organization
+                .FirstOrDefaultAsync(p => p.Id == organizationId);
+
+            if (organizaiton == null) return false;
+            organizaiton.IsExpired = true;
+
+            var activePlan = await _context.SubscriptionPlans.FirstOrDefaultAsync(p => p.OrganizationId == organizationId && p.IsActivated == true);
+
+            if (activePlan != null)
+            {
+                if (!string.IsNullOrEmpty(activePlan.SubscriptionId))
+                {
+                    var subscriptionService = new SubscriptionService();
+                    await subscriptionService.CancelAsync(activePlan.SubscriptionId);
+                }
+
+                activePlan.IsActivated = false;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
     }

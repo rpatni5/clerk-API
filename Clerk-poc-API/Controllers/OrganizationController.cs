@@ -3,6 +3,7 @@ using Clerk_poc_API.Interfaces;
 using Clerk_poc_API.Models;
 using Clerk_poc_API.Services;
 using Microsoft.AspNetCore.Mvc;
+using Stripe;
 
 namespace Clerk_poc_API.Controllers
 {
@@ -46,6 +47,16 @@ namespace Clerk_poc_API.Controllers
 
             var result = await _organizationService.SaveOrganizationAsync(organization);
             return Ok(result);
+        }
+
+        [HttpPost("mark-expire")]
+        public async Task<IActionResult> MarkAsExpired([FromQuery] string organizationId)
+        {
+            var success = await _organizationService.MarkExpiredAsync(organizationId);
+            if (success)
+                return Ok(new { message = "Plan marked as expired." });
+
+            return NotFound(new { message = "No active plan found for this organization." });
         }
     }
 }
