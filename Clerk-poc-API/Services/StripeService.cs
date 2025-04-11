@@ -57,7 +57,7 @@ namespace Clerk_poc_API.Services
                 }
             },
                 TrialPeriodDays = 14,
-                CancelAt = DateTime.UtcNow.AddMinutes(5),
+                CancelAt = DateTime.UtcNow.AddDays(14),
             };
 
             var subscriptionService = new SubscriptionService();
