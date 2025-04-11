@@ -27,15 +27,6 @@ namespace Clerk_poc_API.Services
             {
                 var product = tuple.product;
                 var price = tuple.prices.FirstOrDefault();
-                bool isActive = false;
-
-                if (activeSubscription != null &&
-                    activeSubscription.ProductId == product.Id &&
-                    activeSubscription.ExpiryDate.HasValue &&
-                    activeSubscription.ExpiryDate.Value.Date > DateTime.UtcNow.Date)
-                {
-                    isActive = true;
-                }
 
                 return new SubscriptionPlanDto
                 {
@@ -47,7 +38,6 @@ namespace Clerk_poc_API.Services
                     ProductId = product.Id,
                     ActivePlanId = activeSubscription.ProductId != null ? activeSubscription.ProductId : null,
                     ExpiryDate = activeSubscription.ExpiryDate,
-                    IsActive = isActive
                 };
             }).ToList();
             return result;
@@ -73,19 +63,135 @@ namespace Clerk_poc_API.Services
             return entity;
         }
 
-        public async Task<bool> IsSubscriptionActiveAsync(string organizationId)
+        public async Task<SubscriptionStatusResult> IsSubscriptionActiveAsync(string organizationId)
         {
-            var activeSubscription = await _context.SubscriptionPlans
+            var activeSubscription = await _context.SubscriptionPlans.Include(x => x.Organization)
                 .FirstOrDefaultAsync(x => x.OrganizationId == organizationId);
 
-            return activeSubscription != null &&
-                   activeSubscription.ProductId != null &&
-                   activeSubscription.ExpiryDate.HasValue &&
-                   activeSubscription.ExpiryDate.Value.Date > DateTime.UtcNow.Date;
+            if (activeSubscription == null)
+            {
+                return new SubscriptionStatusResult
+                {
+                    IsActive = false,
+                    Message = "No subscription found in the database."
+                };
+            }
 
-            // bring data from stripe too to chek the subscription of invoice too 
+            if (activeSubscription.ProductId == null)
+            {
+                return new SubscriptionStatusResult
+                {
+                    IsActive = false,
+                    Message = "Subscription product ID is missing."
+                };
+            }
+
+            if (!activeSubscription.ExpiryDate.HasValue || activeSubscription.ExpiryDate.Value.Date <= DateTime.UtcNow.Date)
+            {
+                return new SubscriptionStatusResult
+                {
+                    IsActive = false,
+                    Message = "Subscription has expired."
+                };
+            }
+            if (string.IsNullOrEmpty(activeSubscription.Organization.StripeCustomerId))
+            {
+                return new SubscriptionStatusResult
+                {
+                    IsActive = false,
+                    Message = "Stripe customer ID not found."
+                };
+            }
+            try
+            {
+                var subscriptionService = new SubscriptionService();
+                var subscriptions = await subscriptionService.ListAsync(new SubscriptionListOptions
+                {
+                    Customer = activeSubscription.Organization.StripeCustomerId,
+                    Status = "all",
+                    Limit = 1
+                });
+
+                var stripeSub = subscriptions.FirstOrDefault();
+
+                if (stripeSub == null)
+                {
+                    return new SubscriptionStatusResult
+                    {
+                        IsActive = false,
+                        Message = "No subscription found on Stripe."
+                    };
+                }
+
+                switch (stripeSub.Status)
+                {
+                    case "active":
+                        return new SubscriptionStatusResult
+                        {
+                            IsActive = true,
+                            Message = "Subscription is active."
+                        };
+
+                    case "trialing":
+                        return new SubscriptionStatusResult
+                        {
+                            IsActive = true,
+                            Message = "Subscription is in trial period."
+                        };
+
+                    case "past_due":
+                        return new SubscriptionStatusResult
+                        {
+                            IsActive = false,
+                            Message = "Payment failed. Subscription is past due."
+                        };
+
+                    case "incomplete":
+                        return new SubscriptionStatusResult
+                        {
+                            IsActive = false,
+                            Message = "Payment was not completed. Subscription is incomplete."
+                        };
+
+                    case "incomplete_expired":
+                        return new SubscriptionStatusResult
+                        {
+                            IsActive = false,
+                            Message = "Subscription expired due to incomplete payment."
+                        };
+
+                    case "unpaid":
+                        return new SubscriptionStatusResult
+                        {
+                            IsActive = false,
+                            Message = "Subscription is unpaid due to failed payment attempts."
+                        };
+
+                    case "canceled":
+                        return new SubscriptionStatusResult
+                        {
+                            IsActive = false,
+                            Message = "Subscription was canceled."
+                        };
+
+                    default:
+                        return new SubscriptionStatusResult
+                        {
+                            IsActive = false,
+                            Message = $"Subscription has unknown Stripe status: {stripeSub.Status}"
+                        };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new SubscriptionStatusResult
+                {
+                    IsActive = false,
+                    Message = $"Error checking Stripe subscription: {ex.Message}"
+                };
+            }
         }
-
     }
-
 }
+
+

@@ -18,5 +18,8 @@ namespace Clerk_poc_API.Entities
         public DateTime? ExpiryDate { get; set; }
         public decimal SubscriptionAmount { get; set; }
 
+        [ForeignKey(nameof(OrganizationId))]
+        public virtual Organization Organization { get; set; }
+
     }
 }

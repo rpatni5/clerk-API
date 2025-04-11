@@ -43,8 +43,8 @@ namespace Clerk_poc_API.Controllers
                 return BadRequest("OrganizationId is required.");
             }
 
-            var isActive = await _subscriptionPlanService.IsSubscriptionActiveAsync(organizationId);
-            return Ok(isActive);
+            var result = await _subscriptionPlanService.IsSubscriptionActiveAsync(organizationId);
+            return Ok(result);
         }
     }
 }
