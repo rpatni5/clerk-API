@@ -68,6 +68,7 @@ namespace Clerk_poc_API.Services
             var activeSubscription = await _context.SubscriptionPlans.Include(x => x.Organization)
                 .FirstOrDefaultAsync(x => x.OrganizationId == organizationId);
 
+
             if (activeSubscription == null)
             {
                 return new SubscriptionStatusResult
@@ -76,7 +77,14 @@ namespace Clerk_poc_API.Services
                     Message = "No subscription found in the database."
                 };
             }
-
+            if (activeSubscription.IsActivated == false)
+            {
+                return new SubscriptionStatusResult
+                {
+                    IsActive = false,
+                    Message = "Subscription is not activated in the database."
+                };
+            }
             if (activeSubscription.ProductId == null)
             {
                 return new SubscriptionStatusResult
