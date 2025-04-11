@@ -23,6 +23,8 @@ namespace Clerk_poc_API.Services
             var productPriceList = await _stripeService.GetAllProductsWithPricesAsync();
             var activeSubscription = await _context.SubscriptionPlans
                 .Where(x => x.OrganizationId == organizationId).FirstOrDefaultAsync();
+            var customer = await _context.Organization
+                .Where(x => x.Id == organizationId).FirstOrDefaultAsync();
             var result = productPriceList.Select(tuple =>
             {
                 var product = tuple.product;
@@ -39,6 +41,7 @@ namespace Clerk_poc_API.Services
                     ActivePlanId = activeSubscription.ProductId != null ? activeSubscription.ProductId : null,
                     ExpiryDate = activeSubscription.ExpiryDate,
                     IsActivated = activeSubscription.IsActivated,
+                    customerId = customer.StripeCustomerId,
                 };
             }).ToList();
             return result;
