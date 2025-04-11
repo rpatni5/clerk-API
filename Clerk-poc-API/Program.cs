@@ -3,12 +3,14 @@ using Clerk_poc_API.Interfaces;
 using Clerk_poc_API.Services;
 using Microsoft.EntityFrameworkCore;
 using System;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
-builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+builder.Services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
+builder.Services.AddScoped<IStripeService, StripeService>();
 
 
 builder.Services.AddControllers();
@@ -37,6 +39,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAngularDevClient");
+
+StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
 app.UseAuthorization();
 
