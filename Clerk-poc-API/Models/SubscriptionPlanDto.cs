@@ -12,6 +12,6 @@
         public string ? ProductId { get; set; }
         public string?  ActivePlanId{get; set; }
         public DateTime? ExpiryDate { get; set; }
-        public bool IsActive { get; internal set; }
+        public bool? IsActivated { get; set; }
     }
 }

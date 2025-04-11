@@ -38,6 +38,7 @@ namespace Clerk_poc_API.Services
                     ProductId = product.Id,
                     ActivePlanId = activeSubscription.ProductId != null ? activeSubscription.ProductId : null,
                     ExpiryDate = activeSubscription.ExpiryDate,
+                    IsActivated = activeSubscription.IsActivated,
                 };
             }).ToList();
             return result;
@@ -74,7 +75,7 @@ namespace Clerk_poc_API.Services
                 return new SubscriptionStatusResult
                 {
                     IsActive = false,
-                    Message = "No subscription found in the database."
+                    Message = "No subscription found."
                 };
             }
             if (activeSubscription.IsActivated == false)
@@ -82,7 +83,7 @@ namespace Clerk_poc_API.Services
                 return new SubscriptionStatusResult
                 {
                     IsActive = false,
-                    Message = "Subscription is not activated in the database."
+                    Message = "Subscription is not activated."
                 };
             }
             if (activeSubscription.ProductId == null)
