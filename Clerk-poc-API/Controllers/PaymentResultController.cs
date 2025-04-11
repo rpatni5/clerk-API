@@ -35,6 +35,12 @@ namespace Clerk_poc_API.Controllers
 
             if (organizationId != null)
             {
+                //mark the organization as not expired
+                var organization = await _context.Organization.FirstOrDefaultAsync(o => o.Id == organizationId);
+                if (organization != null)
+                {
+                    organization.IsExpired = false;
+                }
                 // 1. Get the existing active plan for the organization
                 var existingPlan = await _context.SubscriptionPlans
                     .FirstOrDefaultAsync(p => p.OrganizationId == organizationId);
